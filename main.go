@@ -1,7 +1,7 @@
-package specialrobot
+package main
 
-import "fmt"
+import "nextrock/special_robot/discord"
 
 func main() {
-	fmt.Println("Great success 👍👍")
+	discord.Run()
 }
