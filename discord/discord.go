@@ -11,15 +11,15 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var discord *discordgo.Session
+var Discord *discordgo.Session
 
 func createBot() {
 	var err error
-	discord, err = discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
+	Discord, err = discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
-	log.Println("Great success! 👍 👍")
+	log.Println("Great success!")
 }
 
 var (
@@ -30,63 +30,6 @@ var (
 			// Commands/options without description will fail the registration
 			// of the command.
 			Description: "YOU KNOW WHAT TIME IT IS",
-		},
-		{
-			Name:        "basic-command-with-files",
-			Description: "Basic command with files",
-		},
-		{
-			Name:        "options",
-			Description: "Command for demonstrating options",
-			Options: []*discordgo.ApplicationCommandOption{
-
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "string-option",
-					Description: "String option",
-					Required:    true,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionInteger,
-					Name:        "integer-option",
-					Description: "Integer option",
-					Required:    true,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionBoolean,
-					Name:        "bool-option",
-					Description: "Boolean option",
-					Required:    true,
-				},
-
-				// Required options must be listed first since optional parameters
-				// always come after when they're used.
-				// The same concept applies to Discord's Slash-commands API
-
-				{
-					Type:        discordgo.ApplicationCommandOptionChannel,
-					Name:        "channel-option",
-					Description: "Channel option",
-					// Channel type mask
-					ChannelTypes: []discordgo.ChannelType{
-						discordgo.ChannelTypeGuildText,
-						discordgo.ChannelTypeGuildVoice,
-					},
-					Required: false,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionUser,
-					Name:        "user-option",
-					Description: "User option",
-					Required:    false,
-				},
-				{
-					Type:        discordgo.ApplicationCommandOptionRole,
-					Name:        "role-option",
-					Description: "Role option",
-					Required:    false,
-				},
-			},
 		},
 		{
 			Name:        "subcommands",
@@ -347,34 +290,32 @@ var (
 func Run() {
 	createBot()
 
-	discord.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	Discord.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)
 		}
 	})
 
-	discord.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+	Discord.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Println("Bot is up!")
 	})
-	err := discord.Open()
+
+	err := Discord.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
 	}
 
 	for _, v := range commands {
-		_, err := discord.ApplicationCommandCreate(discord.State.User.ID, "", v)
+		_, err := Discord.ApplicationCommandCreate(Discord.State.User.ID, "", v)
 		if err != nil {
 			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
 	}
 
-	defer discord.Close()
+	defer Discord.Close()
 
-	// Set up channel on which to send signal notifications.
-	// We must use a buffered channel or risk missing the signal
-	// if we're not ready to receive when the signal is sent.
-	stop := make(chan os.Signal, 1)
+	stop := make(chan os.Signal)
 	signal.Notify(stop, os.Interrupt)
-	sig := <-stop
-	log.Println("Gracefully shutdowning", sig)
+	<-stop
+	log.Println("Gracefully shutdowning")
 }
