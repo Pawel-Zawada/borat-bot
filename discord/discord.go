@@ -290,8 +290,12 @@ func Run() {
 	createBot()
 
 	Discord.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if h, ok := commands.Commands[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
+		for x := range commands.Commands {
+			currentCommandName := i.ApplicationCommandData().Name
+			if commands.Commands[x].ApplicationCommand.Name == currentCommandName {
+				// Found!
+				commands.Commands[x].Handler(s, i)
+			}
 		}
 	})
 
