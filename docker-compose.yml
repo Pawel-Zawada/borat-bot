@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   app:
@@ -7,4 +7,4 @@ services:
       context: .
       target: dev
     volumes:
-      - .:/opt/app/special_robot
+      - .:/opt/app/borat_bot

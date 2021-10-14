@@ -1,4 +1,4 @@
-module nextrock/special_robot
+module nextrock/borat_bot
 
 go 1.13
 

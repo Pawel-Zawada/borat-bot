@@ -1,6 +1,6 @@
 package main
 
-import "nextrock/special_robot/discord"
+import "nextrock/borat_bot/discord"
 
 func main() {
 	discord.Run()
