@@ -370,8 +370,11 @@ func Run() {
 
 	defer discord.Close()
 
-	stop := make(chan os.Signal)
+	// Set up channel on which to send signal notifications.
+	// We must use a buffered channel or risk missing the signal
+	// if we're not ready to receive when the signal is sent.
+	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
-	<-stop
-	log.Println("Gracefully shutdowning")
+	sig := <-stop
+	log.Println("Gracefully shutdowning", sig)
 }
