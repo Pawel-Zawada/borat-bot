@@ -19,7 +19,7 @@ func createBot() {
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
-	log.Println("Great success!")
+	log.Println("Great success! 👍 👍")
 }
 
 var (
