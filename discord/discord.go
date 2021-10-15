@@ -290,13 +290,8 @@ func Run() {
 	createBot()
 
 	Discord.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		for x := range commands.Commands {
-			currentCommandName := i.ApplicationCommandData().Name
-			if commands.Commands[x].ApplicationCommand.Name == currentCommandName {
-				// Found!
-				commands.Commands[x].Handler(s, i)
-			}
-		}
+		n := i.ApplicationCommandData().Name
+		commands.Commands[n].Handler(s, i)
 	})
 
 	Discord.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
@@ -319,6 +314,6 @@ func Run() {
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
-	<-stop
-	log.Println("Gracefully shutdowning")
+	sig := <-stop
+	log.Println("Gracefully shutdowning", sig)
 }

@@ -9,6 +9,6 @@ type Command struct {
 	Handler            func(*discordgo.Session, *discordgo.InteractionCreate)
 }
 
-var Commands = []Command{
-	SexyTime,
+var Commands = map[string]Command{
+	SexyTime.ApplicationCommand.Name: SexyTime,
 }
