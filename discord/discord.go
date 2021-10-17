@@ -1,11 +1,10 @@
 package discord
 
 import (
+	"github.com/bwmarrin/discordgo"
 	"log"
 	"nextrock/borat_bot/commands"
 	"os"
-
-	"github.com/bwmarrin/discordgo"
 )
 
 var Discord *discordgo.Session
@@ -39,10 +38,13 @@ func handleReady() {
 // createCommands send command creation requests for each defined command in commands.Commands
 func createCommands() {
 	for _, v := range commands.Commands {
-		_, err := Discord.ApplicationCommandCreate(Discord.State.User.ID, "", v.ApplicationCommand)
-		if err != nil {
-			log.Panicf("Cannot create '%v' command: %v", v.ApplicationCommand.Name, err)
-		}
+		go func(v commands.Command) {
+			_, err := Discord.ApplicationCommandCreate(Discord.State.User.ID, "", v.ApplicationCommand)
+			if err != nil {
+				log.Panicf("Cannot create '%v' command: %v", v.ApplicationCommand.Name, err)
+			}
+			log.Printf("Loaded command: %v", v.ApplicationCommand.Name)
+		}(v)
 	}
 }
 
