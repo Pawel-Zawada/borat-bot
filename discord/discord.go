@@ -1,25 +1,27 @@
 package discord
 
 import (
+	"github.com/bwmarrin/discordgo"
 	"log"
 	"nextrock/borat_bot/commands"
 	"os"
-
-	"github.com/bwmarrin/discordgo"
 )
 
 var Discord *discordgo.Session
 
 // create a bot configuration that is ready to be connected
-func initBot() {
+func create() {
 	var err error
 	Discord, err = discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
-	Discord.AddHandler(func(session *discordgo.Session, ready *discordgo.Ready) {
-		log.Println("Bot is up!")
-	})
+	log.Println("Great success!")
+}
+
+// connect to Discord websocket
+func connect() {
+	var err error
 	err = Discord.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
@@ -58,7 +60,10 @@ func initCommands() {
 
 // Run starts up the Discord bot connection and loads in the application commands
 func Run() {
+	create()
+
 	ready := handleReady()
+	connect()
 
 	<-ready
 	initCommands()
