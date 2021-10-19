@@ -29,14 +29,20 @@ func connect() {
 }
 
 // handleReady sets a handler for when the bot has successfully connected
-func handleReady() {
+func handleReady() chan *discordgo.Ready {
+	channel := make(chan *discordgo.Ready)
+
 	Discord.AddHandler(func(session *discordgo.Session, ready *discordgo.Ready) {
 		log.Println("Bot is up!")
+		channel <- ready
 	})
+
+	return channel
 }
 
-// createCommands send command creation requests for each defined command in commands.Commands
-func createCommands() {
+// initCommands send command creation requests for each defined command in commands.Commands
+// and assign corresponding handlers for each.
+func initCommands() {
 	for _, v := range commands.Commands {
 		go func(v commands.Command) {
 			_, err := Discord.ApplicationCommandCreate(Discord.State.User.ID, "", v.ApplicationCommand)
@@ -44,26 +50,23 @@ func createCommands() {
 				log.Panicf("Cannot create '%v' command: %v", v.ApplicationCommand.Name, err)
 			}
 			log.Printf("Loaded command: %v", v.ApplicationCommand.Name)
+
+			Discord.AddHandler(func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+				v.Handler(session, interaction)
+			})
 		}(v)
 	}
-}
-
-// handleCommands sets a handler for each created command that is defined in commands.Command
-func handleCommands() {
-	Discord.AddHandler(func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
-		n := interaction.ApplicationCommandData().Name
-		commands.Commands[n].Handler(session, interaction)
-	})
 }
 
 // Run starts up the Discord bot connection and loads in the application commands
 func Run() {
 	create()
-	handleReady()
+
+	ready := handleReady()
 	connect()
 
-	go createCommands()
-	go handleCommands()
+	<-ready
+	initCommands()
 }
 
 // Stop gracefully shuts down the Discord connection
