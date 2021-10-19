@@ -1,38 +1,29 @@
 package discord
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"log"
 	"nextrock/borat_bot/commands"
 	"os"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 var Discord *discordgo.Session
 
 // create a bot configuration that is ready to be connected
-func create() {
+func initBot() {
 	var err error
 	Discord, err = discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
 	if err != nil {
 		log.Fatalf("Invalid bot parameters: %v", err)
 	}
-	log.Println("Great success!")
-}
-
-// connect to Discord websocket
-func connect() {
-	var err error
+	Discord.AddHandler(func(session *discordgo.Session, ready *discordgo.Ready) {
+		log.Println("Bot is up!")
+	})
 	err = Discord.Open()
 	if err != nil {
 		log.Fatalf("Cannot open the session: %v", err)
 	}
-}
-
-// handleReady sets a handler for when the bot has successfully connected
-func handleReady() {
-	Discord.AddHandler(func(session *discordgo.Session, ready *discordgo.Ready) {
-		log.Println("Bot is up!")
-	})
 }
 
 // createCommands send command creation requests for each defined command in commands.Commands
@@ -58,9 +49,7 @@ func handleCommands() {
 
 // Run starts up the Discord bot connection and loads in the application commands
 func Run() {
-	create()
-	handleReady()
-	connect()
+	initBot()
 
 	go createCommands()
 	go handleCommands()

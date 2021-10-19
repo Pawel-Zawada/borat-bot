@@ -10,5 +10,6 @@ type Command struct {
 }
 
 var Commands = map[string]Command{
-	SexyTime.ApplicationCommand.Name: SexyTime,
+	SexyTime.ApplicationCommand.Name:  SexyTime,
+	TicTacToe.ApplicationCommand.Name: TicTacToe,
 }

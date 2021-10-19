@@ -1,25 +1,35 @@
 package commands
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/bwmarrin/discordgo"
+)
 
 var board [3][3]int
 
-func main() {
-	printBoard()
-	setPlayerOne(0, 0)
-	setPlayerOne(1, 1)
-	setPlayerOne(2, 2)
+var TicTacToe = Command{
+	ApplicationCommand: &discordgo.ApplicationCommand{
+		Name:        "tic-tac-toe",
+		Description: "Play a simple game of tic tac toe",
+	},
+	Handler: func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
 
-	printBoard()
+		session.ChannelMessageSend(interaction.ChannelID, printBoard())
+
+	},
 }
 
-func printBoard() {
+func printBoard() string {
+	boardUI := ""
 	for i := range board {
 		x := board[i]
-		fmt.Println("-------------")
-		fmt.Printf("| %v | %v | %v | \n", coordToString(x[0]), coordToString(x[1]), coordToString(x[2]))
-		fmt.Println("-------------")
+		boardUI = boardUI + "-------------\n"
+		boardUI = boardUI + fmt.Sprintf("| %v | %v | %v |\n", coordToString(x[0]), coordToString(x[1]), coordToString(x[2]))
+		boardUI = boardUI + "-------------\n"
 	}
+
+	return boardUI
 }
 
 func coordToString(i int) string {
